@@ -8,30 +8,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:orientation="horizontal">
-        <!--        <TextView-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:textAlignment="center"-->
-        <!--            android:id="@+id/rule_name"-->
-        <!--            android:text="이름" />-->
-
-        <Switch
-            android:id="@+id/sw_use"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/txtItemRuleName"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:textSize="30sp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:text="이름"/>
-
+            android:text="이름" />
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:visibility="invisible"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingBottom="10dp">
-
         <TextView
             android:id="@+id/div_s"
             android:layout_width="0dp"
@@ -41,7 +38,6 @@
             android:gravity="center|bottom"
             android:text="오전"
             android:textSize="20dp" />
-
         <TextView
             android:id="@+id/start_time"
             android:layout_width="0dp"
@@ -50,7 +46,6 @@
             android:gravity="center|bottom"
             android:text="12:30"
             android:textSize="30sp" />
-
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -58,7 +53,6 @@
             android:layout_weight="1"
             android:text="~"
             android:textSize="30sp" />
-
         <TextView
             android:id="@+id/div_e"
             android:layout_width="0dp"
@@ -68,7 +62,6 @@
             android:gravity="center|bottom"
             android:text="오후"
             android:textSize="20sp" />
-
         <TextView
             android:id="@+id/end_time"
             android:layout_width="0dp"

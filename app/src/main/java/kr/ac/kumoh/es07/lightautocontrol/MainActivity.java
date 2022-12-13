@@ -1,7 +1,6 @@
 package kr.ac.kumoh.es07.lightautocontrol;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -19,7 +18,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -49,11 +47,11 @@ public class MainActivity extends AppCompatActivity {
 
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    private ArrayList<String> pairedNames = new ArrayList<>();
-    private ArrayList<String> pairedAddresses = new ArrayList<>();
+    private final ArrayList<String> pairedNames = new ArrayList<>();
+    private final ArrayList<String> pairedAddresses = new ArrayList<>();
     private ListView availableList;
-    private ArrayList<String> availableNames = new ArrayList<>();
-    private ArrayList<String> availableAddresses = new ArrayList<>();
+    private final ArrayList<String> availableNames = new ArrayList<>();
+    private final ArrayList<String> availableAddresses = new ArrayList<>();
 
 
     @SuppressLint("MissingPermission")
@@ -119,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
          Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
         ListView pairedList = findViewById(R.id.paired_list);
         if (pairedDevices.size() > 0) {
-            // There are paired devices. Get the name and address of each paired device.
             for (BluetoothDevice device : pairedDevices) {
                 pairedNames.add(device.getName());
                 pairedAddresses.add(device.getAddress());
@@ -131,43 +128,29 @@ public class MainActivity extends AppCompatActivity {
             pairedList.setVisibility(View.GONE);
         }
         pairedList.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, pairedNames));
-        pairedList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                connect(pairedAddresses.get(i));
-            }
-        });
+        pairedList.setOnItemClickListener((adapterView, view, i, l) -> connect(pairedAddresses.get(i)));
     }
 
 
     @SuppressLint("MissingPermission")
     public void searchAvailableDevices(View view) {
         mBluetoothAdapter.startDiscovery();
-        // Register for broadcasts when a device is discovered.
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter);
         availableList = findViewById(R.id.list_found);
-        availableList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                connect(availableAddresses.get(i));
-            }
-        });
+        availableList.setOnItemClickListener((adapterView, view1, i, l) -> connect(availableAddresses.get(i)));
     }
 
     public class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
-        private byte[] mmBuffer; // mmBuffer store for the stream
 
         private ConnectedThread(BluetoothSocket socket) {
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
 
-            // Get the input and output streams; using temp objects because
-            // member streams are final.
             try {
                 tmpIn = socket.getInputStream();
             } catch (IOException e) {
@@ -184,40 +167,31 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void run() {
-            mmBuffer = new byte[1024];
-            int numBytes; // bytes returned from read()
+            byte[] mmBuffer = new byte[1024];
+            int numBytes;
 
-            // Keep listening to the InputStream until an exception occurs.
             while (true) {
                 try {
                     if (mmInStream.available() > 0) {
-                        // Read from the InputStream.
                         numBytes = mmInStream.read(mmBuffer);
-                        // Send the obtained bytes to the UI activity.
                         mHandler.obtainMessage(MESSAGE_READ, numBytes, -1, mmBuffer)
                                 .sendToTarget();
                     } else SystemClock.sleep(100);
                 } catch (IOException e) {
-                    Log.d(TAG, "Input stream was disconnected", e);
                     break;
                 }
             }
         }
 
-        // Call this from the main activity to send data to the remote device.
         public void write(String message) {
             try {
                 byte[] bytes = message.getBytes();
                 mmOutStream.write(bytes);
-                // Share the sent message with the UI activity.
-//                    mHandler.obtainMessage(MESSAGE_WRITE, -1, -1, mmBuffer)
-//                            .sendToTarget();
             } catch (IOException e) {
                 Log.e(TAG, "Error occurred when sending data", e);
             }
         }
 
-        // Call this method from the main activity to shut down the connection.
         public void cancel() {
             try {
                 mmSocket.close();
@@ -240,42 +214,38 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("MissingPermission")
     public void connect(String address) {
-//        Log.d("Mac", address);
-//        Toast.makeText(this, "Connecting", Toast.LENGTH_SHORT).show();
-//        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-//        try {
-//            btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-//        } catch (IOException e) {
-//            finish();
-//        }
-//        mBluetoothAdapter.cancelDiscovery();
-//        try {
-//            btSocket.connect();
-//        } catch (IOException e) {
-//            try {
-//                btSocket.close();
-//                Toast.makeText(this, "Failed to connect" , Toast.LENGTH_SHORT).show();
-//            } catch (IOException e2) {
-//                finish();
-//            }
-//        }
-//        if (btSocket.isConnected()) {
-//            mConnectedThread = new ConnectedThread(btSocket);
-//            mConnectedThread.start();
-//            startActivity(new Intent(this, ControlActivity.class));
-//            Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
-//        }
-        startActivity(new Intent(this, ControlActivity.class));
+        Log.d("Mac", address);
+        Toast.makeText(this, "Connecting", Toast.LENGTH_SHORT).show();
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+        try {
+            btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+        } catch (IOException e) {
+            finish();
+        }
+        mBluetoothAdapter.cancelDiscovery();
+        try {
+            btSocket.connect();
+        } catch (IOException e) {
+            try {
+                btSocket.close();
+                Toast.makeText(this, "Failed to connect" , Toast.LENGTH_SHORT).show();
+            } catch (IOException e2) {
+                finish();
+            }
+        }
+        if (btSocket.isConnected()) {
+            mConnectedThread = new ConnectedThread(btSocket);
+            mConnectedThread.start();
+            startActivity(new Intent(this, ControlActivity.class));
+            Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    // Create a BroadcastReceiver for ACTION_FOUND.
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @SuppressLint("MissingPermission")
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Discovery has found a device. Get the BluetoothDevice
-                // object and its info from the Intent.
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 availableNames.add(device.getName());
                 availableAddresses.add(device.getAddress());
@@ -295,7 +265,6 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         }
-        // Don't forget to unregister the ACTION_FOUND receiver.
         unregisterReceiver(mReceiver);
     }
 }

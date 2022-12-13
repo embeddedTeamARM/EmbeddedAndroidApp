@@ -2,19 +2,17 @@ package kr.ac.kumoh.es07.lightautocontrol;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.io.IOException;
-
 public class RuleChangeActivity extends AppCompatActivity {
-    private Intent intent;
     private SeekBar mSetBrightValue;
     private TextView mSetBrightText;
     private TextView mSetStartHour;
@@ -22,23 +20,18 @@ public class RuleChangeActivity extends AppCompatActivity {
     private TextView mSetEndHour;
     private TextView mSetEndMin;
     private EditText mSetRuleName;
-    private Button mSaveBtn;
-    private Button mCanBtn;
 
-    private String Stime;
-    private String Etime;
-    private String bright;
-    private String rule_name;
 
+    @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rule_change);
-        intent = getIntent();
-        Stime = intent.getStringExtra("Stime");
-        Etime = intent.getStringExtra("Etime");
-        bright = intent.getStringExtra("bright");
-        rule_name = intent.getStringExtra("name");
+        Intent intent = getIntent();
+        String sTime = intent.getStringExtra("sTime");
+        String eTime = intent.getStringExtra("sTime");
+        String bright = intent.getStringExtra("bright");
+        String rule_name = intent.getStringExtra("name");
 
         mSetStartHour = findViewById(R.id.crStartHour);
         mSetStartMin = findViewById(R.id.crStartMin);
@@ -47,37 +40,118 @@ public class RuleChangeActivity extends AppCompatActivity {
         mSetBrightValue = findViewById(R.id.brightSetSeekbar);
         mSetBrightText = findViewById(R.id.txtSetBright);
         mSetRuleName = findViewById(R.id.rule_name);
-        mSaveBtn = findViewById(R.id.btnSetRuleSav);
-        mCanBtn = findViewById(R.id.btnSetRuleCan);
+        Button mSaveBtn = findViewById(R.id.btnSetRuleSav);
+        Button mCanBtn = findViewById(R.id.btnSetRuleCan);
 
         mSetBrightValue.setProgress(((Integer.parseInt(bright)-10) / 5));
-        mSetBrightText.setText(""+(10 + mSetBrightValue.getProgress() * 5));
+        mSetBrightText.setText(String.format("%d", 10 + mSetBrightValue.getProgress() * 5));
 
-        mSetStartHour.setText(Stime.split(":")[0]);
-        mSetStartMin.setText(Stime.split(":")[1]);
-        mSetEndHour.setText(Etime.split(":")[0]);
-        mSetEndMin.setText(Etime.split(":")[1]);
+        mSetStartHour.setText(sTime.split(":")[0]);
+        mSetStartMin.setText(sTime.split(":")[1]);
+        mSetEndHour.setText(eTime.split(":")[0]);
+        mSetEndMin.setText(eTime.split(":")[1]);
         mSetRuleName.setText(rule_name);
 
-        mSaveBtn.setOnClickListener(new View.OnClickListener() {
+        // 규칙수정 EditText 내용변경 이벤트 리스너
+        // 잘못된 입력값 방지 및 포커스 자동 이동
+        mSetStartHour.addTextChangedListener(new TextWatcher() {
+            CharSequence beforeChar;
             @Override
-            public void onClick(View view) {
-                Intent intentR = new Intent();
-                intentR.putExtra("SetSTime", mSetStartHour.getText().toString()+":"+mSetStartMin.getText().toString());
-                intentR.putExtra("SetSEime", mSetEndHour.getText().toString()+":"+mSetEndMin.getText().toString());
-                intentR.putExtra("SetBright", String.format("%d", 10+mSetBrightValue.getProgress()*5));
-                setResult(RESULT_OK, intentR);
-                finish();
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                beforeChar = charSequence;
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (beforeChar.length() > 1) {
+                    mSetStartMin.requestFocus();
+                    if (Integer.parseInt(charSequence.toString()) > 23)
+                        mSetStartHour.setText("23");
+                }
+                if (Integer.parseInt(charSequence.toString()) > 2)
+                    mSetStartMin.requestFocus();
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
             }
         });
-        mCanBtn.setOnClickListener(new View.OnClickListener() {
+        mSetStartMin.addTextChangedListener(new TextWatcher() {
+            CharSequence beforeChar;
             @Override
-            public void onClick(View view) {
-                setResult(RESULT_CANCELED);
-                finish();
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                beforeChar = charSequence;
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (beforeChar.length() > 1) {
+                    mSetEndHour.requestFocus();
+                    if (Integer.parseInt(charSequence.toString()) > 59)
+                        mSetStartMin.setText("59");
+                }
+                if (Integer.parseInt(charSequence.toString()) > 5)
+                    mSetEndHour.requestFocus();
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+        mSetEndHour.addTextChangedListener(new TextWatcher() {
+            CharSequence beforeChar;
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                beforeChar = charSequence;
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (beforeChar.length() > 1) {
+                    mSetEndMin.requestFocus();
+                    if (Integer.parseInt(charSequence.toString()) > 23)
+                        mSetEndHour.setText("23");
+                }
+                if (Integer.parseInt(charSequence.toString()) > 2)
+                    mSetEndMin.requestFocus();
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+        mSetEndMin.addTextChangedListener(new TextWatcher() {
+            CharSequence beforeChar;
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                beforeChar = charSequence;
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (beforeChar.length() > 1) {
+                    if (Integer.parseInt(charSequence.toString()) > 59) {
+                        mSetEndMin.setText("59");
+                        mSetEndMin.requestFocus();
+                    }
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
             }
         });
 
+        // 저장 버튼 클릭시 이벤트 리스너 => 결과값을 가지고 Activity 종료 => ControlActivity로 전달
+        mSaveBtn.setOnClickListener(view -> {
+            Intent intentR = new Intent();
+            intentR.putExtra("ruleName", mSetRuleName.getText().toString());
+            intentR.putExtra("setSTime", mSetStartHour.getText().toString()+":"+mSetStartMin.getText().toString());
+            intentR.putExtra("setETime", mSetEndHour.getText().toString()+":"+mSetEndMin.getText().toString());
+            intentR.putExtra("setBright", String.format("%d", 10 + mSetBrightValue.getProgress()*5));
+            setResult(RESULT_OK, intentR);
+            finish();
+        });
+
+        // 취소 버튼 클릭시 이벤트 리스너
+        mCanBtn.setOnClickListener(view -> {
+            setResult(RESULT_CANCELED);
+            finish();
+        });
+
+        // 탐색바 변경 시 밝기 값 텍스트 변경을 위한 이벤트 리스너
         mSetBrightValue.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -95,9 +169,11 @@ public class RuleChangeActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     public void onBackPressed() {
         setResult(RESULT_CANCELED);
         super.onBackPressed();
     }
+
 }
