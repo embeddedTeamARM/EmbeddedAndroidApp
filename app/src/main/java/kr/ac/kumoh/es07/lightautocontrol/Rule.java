@@ -61,7 +61,7 @@ public class Rule {
         return Integer.toString(bright);
     }
     public String getData() {
-        return String.format("04%02d%02d%02d%02d%03d", time_start_h, time_start_m, time_end_h, time_end_m, bright);
+        return String.format("04 %02d %02d %02d %02d %03d", time_start_h, time_start_m, time_end_h, time_end_m, bright);
     }
     public String getName() {
         return rule_name;

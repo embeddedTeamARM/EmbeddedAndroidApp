@@ -24,6 +24,8 @@ public class ControlActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        MainActivity.mConnectedThread.write("9");
+
         setContentView(R.layout.activity_control);
 
         RecyclerView mRecyclerView = findViewById(R.id.rule_list);

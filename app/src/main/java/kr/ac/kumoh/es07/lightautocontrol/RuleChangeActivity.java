@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
@@ -29,7 +30,7 @@ public class RuleChangeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_rule_change);
         Intent intent = getIntent();
         String sTime = intent.getStringExtra("sTime");
-        String eTime = intent.getStringExtra("sTime");
+        String eTime = intent.getStringExtra("eTime");
         String bright = intent.getStringExtra("bright");
         String rule_name = intent.getStringExtra("name");
 
@@ -51,6 +52,7 @@ public class RuleChangeActivity extends AppCompatActivity {
         mSetEndHour.setText(eTime.split(":")[0]);
         mSetEndMin.setText(eTime.split(":")[1]);
         mSetRuleName.setText(rule_name);
+        Log.d("VALUE", sTime+" "+eTime);
 
         // 규칙수정 EditText 내용변경 이벤트 리스너
         // 잘못된 입력값 방지 및 포커스 자동 이동
